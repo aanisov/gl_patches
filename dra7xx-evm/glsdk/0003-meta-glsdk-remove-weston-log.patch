@@ -1,0 +1,69 @@
+From 04452d00b7527e8616e4cc2e691185fa658b5b20 Mon Sep 17 00:00:00 2001
+From: Oleksandr Baglei <oleksandr.baglei@globallogic.com>
+Date: Mon, 28 Dec 2015 14:22:40 +0200
+Subject: [PATCH 3/6] meta-glsdk: remove weston log
+
+To reduce weston logs from DomD.
+
+Signed-off-by: Oleksandr Baglei <oleksandr.baglei@globallogic.com>
+---
+ .../meta-glsdk/0002-weston-remove-weston_log.patch | 47 ++++++++++++++++++++++
+ 1 file changed, 47 insertions(+)
+ create mode 100644 patch/meta-glsdk/0002-weston-remove-weston_log.patch
+
+diff --git a/patch/meta-glsdk/0002-weston-remove-weston_log.patch b/patch/meta-glsdk/0002-weston-remove-weston_log.patch
+new file mode 100644
+index 0000000..2a64366
+--- /dev/null
++++ b/patch/meta-glsdk/0002-weston-remove-weston_log.patch
+@@ -0,0 +1,47 @@
++From a6338b8847cf6fc181f9a07ead138ee3af9e2f75 Mon Sep 17 00:00:00 2001
++From: Oleksandr Baglei <oleksandr.baglei@globallogic.com>
++Date: Mon, 28 Dec 2015 13:26:44 +0200
++Subject: [PATCH] weston: remove weston_log
++
++Remove weston_log("VBlank is pending for connector = %d,
++frame = %d\n",output->connector_id, frame).
++
++Signed-off-by: Oleksandr Baglei <oleksandr.baglei@globallogic.com>
++---
++ .../weston/weston/remove_VBlank_log_message.patch             | 11 +++++++++++
++ recipes-graphics/weston/weston_1.6.0.bb                       |  1 +
++ 2 files changed, 12 insertions(+)
++ create mode 100644 recipes-graphics/weston/weston/remove_VBlank_log_message.patch
++
++diff --git a/recipes-graphics/weston/weston/remove_VBlank_log_message.patch b/recipes-graphics/weston/weston/remove_VBlank_log_message.patch
++new file mode 100644
++index 0000000..3c5bfbf
++--- /dev/null
+++++ b/recipes-graphics/weston/weston/remove_VBlank_log_message.patch
++@@ -0,0 +1,11 @@
+++diff -Naurw git/src/compositor-drm.c git.new/src/compositor-drm.c
+++--- git/src/compositor-drm.c	2015-12-18 14:20:09.357631897 +0200
++++++ git.new/src/compositor-drm.c	2015-12-18 14:24:26.573637709 +0200
+++@@ -771,7 +771,6 @@
+++ 	output->page_flip_pending = 0;
+++ 
+++ 	if(output->vblank_pending) {
+++-		weston_log("VBlank is pending for connector = %d, frame = %d\n", output->connector_id, frame);
+++ 		bail = 1;
+++ 	}
+++ 
++diff --git a/recipes-graphics/weston/weston_1.6.0.bb b/recipes-graphics/weston/weston_1.6.0.bb
++index bd35bf8..b3a6751 100644
++--- a/recipes-graphics/weston/weston_1.6.0.bb
+++++ b/recipes-graphics/weston/weston_1.6.0.bb
++@@ -14,6 +14,7 @@ SRC_URI = "git://anongit.freedesktop.org/wayland/weston;protocol=git \
++            file://make-lcms-explicitly-configurable.patch \
++            file://make-libwebp-explicitly-configurable.patch \
++            file://0001-weston-Enabling-DRM-backend-with-multiple-displays.patch \
+++           file://remove_VBlank_log_message.patch \
++ "
++ 
++ S = "${WORKDIR}/git"
++-- 
++2.6.4
++
+-- 
+2.8.3
+

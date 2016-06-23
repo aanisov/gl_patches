@@ -1,0 +1,69 @@
+From 65ef49d17dc1517e616715cfa664f25c58dea946 Mon Sep 17 00:00:00 2001
+From: Andrii Anisov <andrii.anisov@globallogic.com>
+Date: Mon, 28 Dec 2015 12:48:27 +0200
+Subject: [PATCH 1/6] Add libs needed for xen tools build.
+
+While xen user space tools and libs are build externally (not within
+yocto), we have to specify missing libs explicitly.
+
+Signed-off-by: Andrii Anisov <andrii.anisov@globallogic.com>
+---
+ bin/build-core-sdk.sh                              |  4 +++
+ .../0001-Add-libs-needed-for-xen-tools.patch       | 30 ++++++++++++++++++++++
+ 2 files changed, 34 insertions(+)
+ create mode 100644 patch/meta-glsdk/0001-Add-libs-needed-for-xen-tools.patch
+
+diff --git a/bin/build-core-sdk.sh b/bin/build-core-sdk.sh
+index 51a7a1d..4ea1ba0 100755
+--- a/bin/build-core-sdk.sh
++++ b/bin/build-core-sdk.sh
+@@ -21,6 +21,10 @@ echo "[GLSDK]>"
+ echo "[GLSDK]> ./oe-layertool-setup.sh -f configs/glsdk/glsdk-7.04.00.03-config.txt"
+ ./oe-layertool-setup.sh -f configs/glsdk/glsdk-7.04.00.03-config.txt
+ 
++echo "[GLSDK]> Applying patches on meta-glsdk"
++cd ${GLSDK}/yocto-layers/sources/meta-glsdk
++git am ${GLSDK}/patch/meta-glsdk/*.patch
++
+ cd $GLSDK/yocto-layers
+ 
+ echo "[GLSDK]> cd build"
+diff --git a/patch/meta-glsdk/0001-Add-libs-needed-for-xen-tools.patch b/patch/meta-glsdk/0001-Add-libs-needed-for-xen-tools.patch
+new file mode 100644
+index 0000000..be77375
+--- /dev/null
++++ b/patch/meta-glsdk/0001-Add-libs-needed-for-xen-tools.patch
+@@ -0,0 +1,30 @@
++From 783d3c822736f31a8d3b27369a27be3e77e0f08e Mon Sep 17 00:00:00 2001
++From: Andrii Anisov <andrii.anisov@globallogic.com>
++Date: Wed, 10 Jun 2015 10:25:19 +0300
++Subject: [PATCH 2/2] Add libs needed for xen tools.
++
++Add yajl, dtc, zlib, lzo and xz needed for xen tools.
++
++Signed-off-by: Andrii Anisov <andrii.anisov@globallogic.com>
++---
++ .../recipes-core/images/arago-glsdk-multimedia-image.bb              | 5 +++++
++ 1 file changed, 5 insertions(+)
++
++diff --git a/meta-arago-distro/recipes-core/images/arago-glsdk-multimedia-image.bb b/meta-arago-distro/recipes-core/images/arago-glsdk-multimedia-image.bb
++index 6c9dd5c..c06202a 100644
++--- a/meta-arago-distro/recipes-core/images/arago-glsdk-multimedia-image.bb
+++++ b/meta-arago-distro/recipes-core/images/arago-glsdk-multimedia-image.bb
++@@ -16,5 +16,10 @@ IMAGE_INSTALL += "\
++     packagegroup-arago-tisdk-connectivity \
++     packagegroup-arago-test \
++     packagegroup-arago-tisdk-matrix \
+++    yajl \
+++    dtc \
+++    zlib \
+++    lzo \
+++    xz \
++     "
++ export IMAGE_BASENAME = "arago-glsdk-multimedia-image"
++-- 
++2.4.3
++
+-- 
+2.8.3
+

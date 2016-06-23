@@ -1,0 +1,88 @@
+From a8ba783f7388c3af062da2d11bf7ca0b1f41f856 Mon Sep 17 00:00:00 2001
+From: Andrii Anisov <andrii.anisov@globallogic.com>
+Date: Tue, 31 May 2016 17:44:22 +0300
+Subject: [PATCH 6/6] meta-glsdk: fixup the weston patch
+
+Signed-off-by: Andrii Anisov <andrii.anisov@globallogic.com>
+---
+ .../0001-Add-libs-needed-for-xen-tools.patch       |  6 ++---
+ .../meta-glsdk/0002-weston-remove-weston_log.patch | 28 +++++++++++-----------
+ 2 files changed, 17 insertions(+), 17 deletions(-)
+
+diff --git a/patch/meta-glsdk/0001-Add-libs-needed-for-xen-tools.patch b/patch/meta-glsdk/0001-Add-libs-needed-for-xen-tools.patch
+index be77375..8c960b5 100644
+--- a/patch/meta-glsdk/0001-Add-libs-needed-for-xen-tools.patch
++++ b/patch/meta-glsdk/0001-Add-libs-needed-for-xen-tools.patch
+@@ -1,7 +1,7 @@
+-From 783d3c822736f31a8d3b27369a27be3e77e0f08e Mon Sep 17 00:00:00 2001
++From dc7435fe6b2cc014d1d766f835f34baacfc8bf5a Mon Sep 17 00:00:00 2001
+ From: Andrii Anisov <andrii.anisov@globallogic.com>
+ Date: Wed, 10 Jun 2015 10:25:19 +0300
+-Subject: [PATCH 2/2] Add libs needed for xen tools.
++Subject: [PATCH 1/2] Add libs needed for xen tools.
+ 
+ Add yajl, dtc, zlib, lzo and xz needed for xen tools.
+ 
+@@ -26,5 +26,5 @@ index 6c9dd5c..c06202a 100644
+      "
+  export IMAGE_BASENAME = "arago-glsdk-multimedia-image"
+ -- 
+-2.4.3
++2.8.3
+ 
+diff --git a/patch/meta-glsdk/0002-weston-remove-weston_log.patch b/patch/meta-glsdk/0002-weston-remove-weston_log.patch
+index 2a64366..c059d83 100644
+--- a/patch/meta-glsdk/0002-weston-remove-weston_log.patch
++++ b/patch/meta-glsdk/0002-weston-remove-weston_log.patch
+@@ -1,7 +1,7 @@
+-From a6338b8847cf6fc181f9a07ead138ee3af9e2f75 Mon Sep 17 00:00:00 2001
++From 9e9aab42188e61fb59b05f0274a5e9d060ef03ee Mon Sep 17 00:00:00 2001
+ From: Oleksandr Baglei <oleksandr.baglei@globallogic.com>
+ Date: Mon, 28 Dec 2015 13:26:44 +0200
+-Subject: [PATCH] weston: remove weston_log
++Subject: [PATCH 2/2] weston: remove weston_log
+ 
+ Remove weston_log("VBlank is pending for connector = %d,
+ frame = %d\n",output->connector_id, frame).
+@@ -9,7 +9,7 @@ frame = %d\n",output->connector_id, frame).
+ Signed-off-by: Oleksandr Baglei <oleksandr.baglei@globallogic.com>
+ ---
+  .../weston/weston/remove_VBlank_log_message.patch             | 11 +++++++++++
+- recipes-graphics/weston/weston_1.6.0.bb                       |  1 +
++ recipes-graphics/weston/weston_1.6.0.bbappend                 |  1 +
+  2 files changed, 12 insertions(+)
+  create mode 100644 recipes-graphics/weston/weston/remove_VBlank_log_message.patch
+ 
+@@ -30,18 +30,18 @@ index 0000000..3c5bfbf
+ + 		bail = 1;
+ + 	}
+ + 
+-diff --git a/recipes-graphics/weston/weston_1.6.0.bb b/recipes-graphics/weston/weston_1.6.0.bb
+-index bd35bf8..b3a6751 100644
+---- a/recipes-graphics/weston/weston_1.6.0.bb
+-+++ b/recipes-graphics/weston/weston_1.6.0.bb
+-@@ -14,6 +14,7 @@ SRC_URI = "git://anongit.freedesktop.org/wayland/weston;protocol=git \
+-            file://make-lcms-explicitly-configurable.patch \
+-            file://make-libwebp-explicitly-configurable.patch \
+-            file://0001-weston-Enabling-DRM-backend-with-multiple-displays.patch \
+-+           file://remove_VBlank_log_message.patch \
++diff --git a/recipes-graphics/weston/weston_1.6.0.bbappend b/recipes-graphics/weston/weston_1.6.0.bbappend
++index 251e54b..1cccbdd 100644
++--- a/recipes-graphics/weston/weston_1.6.0.bbappend
+++++ b/recipes-graphics/weston/weston_1.6.0.bbappend
++@@ -3,6 +3,7 @@ PACKAGECONFIG[wayland] = "--enable-wayland-compositor,--disable-wayland-composit
++ SRC_URI_append  = "file://weston.ini \
++ 		   file://0001-support-for-surface-positioning-added.patch \
++ 		   file://0001-Add-soc-performance-monitor-utilites.patch \
+++                   file://remove_VBlank_log_message.patch \
+  "
+  
+- S = "${WORKDIR}/git"
++ PR_append = "-arago15"
+ -- 
+-2.6.4
++2.8.3
+ 
+-- 
+2.8.3
+

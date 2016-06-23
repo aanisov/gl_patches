@@ -1,0 +1,162 @@
+From 21acf99b4fc0902081d1090b34fe2b742d3178aa Mon Sep 17 00:00:00 2001
+From: Andrii Anisov <andrii.anisov@globallogic.com>
+Date: Tue, 31 May 2016 17:29:47 +0300
+Subject: [PATCH 5/6] oe-core: fix ptrace build issue
+
+With gcc 4.8 we do face a build issue which is fixed with
+correspondent patch. Please see detailed descripion in a
+nested patch.
+
+Signed-off-by: Andrii Anisov <andrii.anisov@globallogic.com>
+---
+ ...001-alsa-lib-Add-a-fix-for-PCM-xrun-issue.patch |  10 +-
+ ...headers-ptrace.h-remove-ptrace_peeksiginf.patch | 109 +++++++++++++++++++++
+ 2 files changed, 114 insertions(+), 5 deletions(-)
+ create mode 100644 patch/oe-core/0002-linux-libc-headers-ptrace.h-remove-ptrace_peeksiginf.patch
+
+diff --git a/patch/oe-core/0001-alsa-lib-Add-a-fix-for-PCM-xrun-issue.patch b/patch/oe-core/0001-alsa-lib-Add-a-fix-for-PCM-xrun-issue.patch
+index 891110a..2e8bd78 100644
+--- a/patch/oe-core/0001-alsa-lib-Add-a-fix-for-PCM-xrun-issue.patch
++++ b/patch/oe-core/0001-alsa-lib-Add-a-fix-for-PCM-xrun-issue.patch
+@@ -1,12 +1,12 @@
+-From 91a3569124e2b0a43068866149521ec02d8423d8 Mon Sep 17 00:00:00 2001
++From 911d720bd878efb6441ee812b2ce5eb0f7119de9 Mon Sep 17 00:00:00 2001
+ From: Oleksandr Baglei <oleksandr.baglei@globallogic.com>
+ Date: Sun, 6 Dec 2015 17:00:32 +0200
+-Subject: [PATCH 2/2] alsa-lib: Add a fix for PCM xrun issue.
++Subject: [PATCH 1/2] alsa-lib: Add a fix for PCM xrun issue.
+ 
+ Signed-off-by: Oleksandr Baglei <oleksandr.baglei@globallogic.com>
+ ---
+- ...e_PCM_xrun_and_unexpected_states_properly.patch |  227 ++++++++++++++++++++
+- meta/recipes-multimedia/alsa/alsa-lib_1.0.27.2.bb  |    1 +
++ ...e_PCM_xrun_and_unexpected_states_properly.patch | 227 +++++++++++++++++++++
++ meta/recipes-multimedia/alsa/alsa-lib_1.0.27.2.bb  |   1 +
+  2 files changed, 228 insertions(+)
+  create mode 100644 meta/recipes-multimedia/alsa/alsa-lib/pcm_dmix__Handle_slave_PCM_xrun_and_unexpected_states_properly.patch
+ 
+@@ -256,5 +256,5 @@ index cbe0448..3d4f73c 100644
+  SRC_URI[md5sum] = "69129a7c37697f81ac092335e9fa452b"
+  SRC_URI[sha256sum] = "690ed393e7efd4fc7e3a2d2cda5449298ca0c895197e5914e350882012430d19"
+ -- 
+-1.7.9.5
++2.8.3
+ 
+diff --git a/patch/oe-core/0002-linux-libc-headers-ptrace.h-remove-ptrace_peeksiginf.patch b/patch/oe-core/0002-linux-libc-headers-ptrace.h-remove-ptrace_peeksiginf.patch
+new file mode 100644
+index 0000000..048348d
+--- /dev/null
++++ b/patch/oe-core/0002-linux-libc-headers-ptrace.h-remove-ptrace_peeksiginf.patch
+@@ -0,0 +1,109 @@
++From 6c3f4ef5ed393b30211b5e680126bcd3d0b55135 Mon Sep 17 00:00:00 2001
++From: Bruce Ashfield <bruce.ashfield@windriver.com>
++Date: Sun, 25 Aug 2013 23:25:15 -0400
++Subject: [PATCH 2/2] linux-libc-headers: ptrace.h: remove
++ ptrace_peeksiginfo_args
++
++The addition of ptrace_peeksiginfo_args to the uapi in kernel commit
++84c751bd [ptrace: add ability to retrieve signals without removing from a queue (v4)]
++means that existing applications using glibc versions that define ptrace_peeksiginfo_args
++in sys/ptrace.h will get duplicate structure definitions like:
++
++    | In file included from /poky-master/build/tmp/work/i586-poky-linux/strace/4.8-r0/strace-4.8/process.c:66:0:
++    | /poky-master/build/tmp/sysroots/qemux86/usr/include/linux/ptrace.h:58:8: error: redefinition of 'struct ptrace_peeksiginfo_args'
++    |  struct ptrace_peeksiginfo_args {
++    |         ^
++    | In file included from /poky-master/build/tmp/work/i586-poky-linux/strace/4.8-r0/strace-4.8/defs.h:159:0,
++    |                  from /poky-master/build/tmp/work/i586-poky-linux/strace/4.8-r0/strace-4.8/process.c:37:
++    | /poky-master/build/tmp/sysroots/qemux86/usr/include/sys/ptrace.h:191:8: note: originally defined here
++    |  struct ptrace_peeksiginfo_args
++    |         ^
++    | make[2]: *** [process.o] Error 1
++
++Reverting to the previous status of not exporting this structure temporarily
++fixes applications, until they can be adjusted to not mix sys/ptrace.h and
++linux/ptrace.h includes.
++
++(From OE-Core rev: 7c207e4c3c0e3b575c67a302b97b0dc700a8fc15)
++
++Signed-off-by: Bruce Ashfield <bruce.ashfield@windriver.com>
++Signed-off-by: Saul Wold <sgw@linux.intel.com>
++Signed-off-by: Richard Purdie <richard.purdie@linuxfoundation.org>
++---
++ ...1-ptrace.h-remove-ptrace_peeksiginfo_args.patch | 50 ++++++++++++++++++++++
++ .../linux-libc-headers/linux-libc-headers_3.14.bb  |  2 +
++ 2 files changed, 52 insertions(+)
++ create mode 100644 meta/recipes-kernel/linux-libc-headers/linux-libc-headers/0001-ptrace.h-remove-ptrace_peeksiginfo_args.patch
++
++diff --git a/meta/recipes-kernel/linux-libc-headers/linux-libc-headers/0001-ptrace.h-remove-ptrace_peeksiginfo_args.patch b/meta/recipes-kernel/linux-libc-headers/linux-libc-headers/0001-ptrace.h-remove-ptrace_peeksiginfo_args.patch
++new file mode 100644
++index 0000000..4e9f395
++--- /dev/null
+++++ b/meta/recipes-kernel/linux-libc-headers/linux-libc-headers/0001-ptrace.h-remove-ptrace_peeksiginfo_args.patch
++@@ -0,0 +1,50 @@
+++From 33521facc55e276bfa6bd78d4cf7397678377ac9 Mon Sep 17 00:00:00 2001
+++From: Bruce Ashfield <bruce.ashfield@windriver.com>
+++Date: Sun, 25 Aug 2013 22:51:07 -0400
+++Subject: [PATCH] ptrace.h: remove ptrace_peeksiginfo_args
+++
+++The addition of ptrace_peeksiginfo_args to the uapi in kernel commit
+++84c751bd [ptrace: add ability to retrieve signals without removing from a queue (v4)]
+++means that existing applications using glibc versions that define ptrace_peeksiginfo_args
+++in sys/ptrace.h will get duplicate structure definitions like:
+++
+++    | In file included from /poky-master/build/tmp/work/i586-poky-linux/strace/4.8-r0/strace-4.8/process.c:66:0:
+++    | /poky-master/build/tmp/sysroots/qemux86/usr/include/linux/ptrace.h:58:8: error: redefinition of 'struct ptrace_peeksiginfo_args'
+++    |  struct ptrace_peeksiginfo_args {
+++    |         ^
+++    | In file included from /poky-master/build/tmp/work/i586-poky-linux/strace/4.8-r0/strace-4.8/defs.h:159:0,
+++    |                  from /poky-master/build/tmp/work/i586-poky-linux/strace/4.8-r0/strace-4.8/process.c:37:
+++    | /poky-master/build/tmp/sysroots/qemux86/usr/include/sys/ptrace.h:191:8: note: originally defined here
+++    |  struct ptrace_peeksiginfo_args
+++    |         ^
+++    | make[2]: *** [process.o] Error 1
+++
+++Reverting to the previous status of not exporting this structure temporarily
+++fixes applications, until they can be adjusted to not mix sys/ptrace.h and
+++linux/ptrace.h includes.
+++
+++Signed-off-by: Bruce Ashfield <bruce.ashfield@windriver.com>
+++---
+++ include/uapi/linux/ptrace.h | 6 ------
+++ 1 file changed, 6 deletions(-)
+++
+++diff --git a/include/uapi/linux/ptrace.h b/include/uapi/linux/ptrace.h
+++index cf1019e..daf1e19 100644
+++--- a/include/uapi/linux/ptrace.h
++++++ b/include/uapi/linux/ptrace.h
+++@@ -55,12 +55,6 @@
+++ 
+++ #define PTRACE_PEEKSIGINFO	0x4209
+++ 
+++-struct ptrace_peeksiginfo_args {
+++-	__u64 off;	/* from which siginfo to start */
+++-	__u32 flags;
+++-	__s32 nr;	/* how may siginfos to take */
+++-};
+++-
+++ #define PTRACE_GETSIGMASK	0x420a
+++ #define PTRACE_SETSIGMASK	0x420b
+++ 
+++-- 
+++2.8.3
+++
++diff --git a/meta/recipes-kernel/linux-libc-headers/linux-libc-headers_3.14.bb b/meta/recipes-kernel/linux-libc-headers/linux-libc-headers_3.14.bb
++index 9ac70af..2fdabcf 100644
++--- a/meta/recipes-kernel/linux-libc-headers/linux-libc-headers_3.14.bb
+++++ b/meta/recipes-kernel/linux-libc-headers/linux-libc-headers_3.14.bb
++@@ -2,6 +2,8 @@ KORG_ARCHIVE_COMPRESSION = "xz"
++ 
++ require linux-libc-headers.inc
++ 
+++SRC_URI += "file://0001-ptrace.h-remove-ptrace_peeksiginfo_args.patch"
+++
++ SRC_URI[md5sum] = "b621207b3f6ecbb67db18b13258f8ea8"
++ SRC_URI[sha256sum] = "61558aa490855f42b6340d1a1596be47454909629327c49a5e4e10268065dffa"
++ 
++-- 
++2.8.3
++
+-- 
+2.8.3
+

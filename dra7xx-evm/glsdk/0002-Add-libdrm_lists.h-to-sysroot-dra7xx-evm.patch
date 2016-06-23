@@ -1,0 +1,82 @@
+From bd58bf95072db9487b14c0e0c640b8f796b7c0f5 Mon Sep 17 00:00:00 2001
+From: Oleksandr Baglei <oleksandr.baglei@globallogic.com>
+Date: Sat, 1 Aug 2015 12:29:27 +0300
+Subject: [PATCH 2/6] Add libdrm_lists.h to sysroot/dra7xx-evm
+
+Add libdrm_lists.h to sysroot/dra7xx-evm needed for pvdriver: fb2wl
+
+Signed-off-by: Oleksandr Baglei <oleksandr.baglei@globallogic.com>
+---
+ bin/build-core-sdk.sh                            |  4 +++
+ patch/meta-ti/0001-Add-libdrm_header.patch.patch | 44 ++++++++++++++++++++++++
+ 2 files changed, 48 insertions(+)
+ create mode 100644 patch/meta-ti/0001-Add-libdrm_header.patch.patch
+
+diff --git a/bin/build-core-sdk.sh b/bin/build-core-sdk.sh
+index 4ea1ba0..1d2806f 100755
+--- a/bin/build-core-sdk.sh
++++ b/bin/build-core-sdk.sh
+@@ -25,6 +25,10 @@ echo "[GLSDK]> Applying patches on meta-glsdk"
+ cd ${GLSDK}/yocto-layers/sources/meta-glsdk
+ git am ${GLSDK}/patch/meta-glsdk/*.patch
+ 
++echo "[GLSDK]> Applying patches on meta-ti"
++cd ${GLSDK}/yocto-layers/sources/meta-ti
++git am ${GLSDK}/patch/meta-ti/*.patch
++
+ cd $GLSDK/yocto-layers
+ 
+ echo "[GLSDK]> cd build"
+diff --git a/patch/meta-ti/0001-Add-libdrm_header.patch.patch b/patch/meta-ti/0001-Add-libdrm_header.patch.patch
+new file mode 100644
+index 0000000..fab021a
+--- /dev/null
++++ b/patch/meta-ti/0001-Add-libdrm_header.patch.patch
+@@ -0,0 +1,44 @@
++From 60729a67ba8549d8cd4e1689dd3a686a6fb6e9d3 Mon Sep 17 00:00:00 2001
++From: Oleksandr Baglei <oleksandr.baglei@globallogic.com>
++Date: Sat, 1 Aug 2015 12:13:15 +0300
++Subject: [PATCH] Add libdrm_header.patch
++
++Signed-off-by: Oleksandr Baglei <oleksandr.baglei@globallogic.com>
++---
++ .../drm/libdrm-2.4.41/libdrm_header.patch          |   11 +++++++++++
++ recipes-graphics/drm/libdrm_2.4.41.bb              |    1 +
++ 2 files changed, 12 insertions(+)
++ create mode 100644 recipes-graphics/drm/libdrm-2.4.41/libdrm_header.patch
++
++diff --git a/recipes-graphics/drm/libdrm-2.4.41/libdrm_header.patch b/recipes-graphics/drm/libdrm-2.4.41/libdrm_header.patch
++new file mode 100644
++index 0000000..f497e51
++--- /dev/null
+++++ b/recipes-graphics/drm/libdrm-2.4.41/libdrm_header.patch
++@@ -0,0 +1,11 @@
+++diff -uNr git-orig/Makefile.am git/Makefile.am
+++--- git-orig/Makefile.am	2015-08-01 10:48:27.665877496 +0300
++++++ git/Makefile.am	2015-08-01 10:50:58.029880895 +0300
+++@@ -68,7 +68,7 @@
+++ 	libdrm_lists.h
+++ 
+++ libdrmincludedir = ${includedir}
+++-libdrminclude_HEADERS = xf86drm.h xf86drmMode.h
++++libdrminclude_HEADERS = xf86drm.h xf86drmMode.h libdrm_lists.h
+++ 
+++ EXTRA_DIST = libdrm.pc.in include/drm/*
++diff --git a/recipes-graphics/drm/libdrm_2.4.41.bb b/recipes-graphics/drm/libdrm_2.4.41.bb
++index 0150632..e41020c 100644
++--- a/recipes-graphics/drm/libdrm_2.4.41.bb
+++++ b/recipes-graphics/drm/libdrm_2.4.41.bb
++@@ -13,6 +13,7 @@ SRCREV = "3cb5405084111193cedb8796d259b56560b088f0"
++ 
++ SRC_URI += "file://installtests-ti.patch \
++             file://GNU_SOURCE_definition.patch \
+++            file://libdrm_header.patch \
++            "
++ 
++ PR = "${INC_PR}.1"
++-- 
++1.7.9.5
++
+-- 
+2.8.3
+

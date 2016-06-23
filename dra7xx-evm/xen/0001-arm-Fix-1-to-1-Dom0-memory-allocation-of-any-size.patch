@@ -1,0 +1,30 @@
+From 74bbc073228db382d1ac8340ab39536405aae06a Mon Sep 17 00:00:00 2001
+From: Iurii Konovalenko <iurii.konovalenko@globallogic.com>
+Date: Wed, 16 Mar 2016 17:57:57 +0200
+Subject: [PATCH] arm: Fix 1-to-1 Dom0 memory allocation of any size
+
+For Dom0 with non-power-two memory size less then 128M allocation
+of first memory bank fails. This patch fix it.
+
+Change-Id: Icfa2c7ac3bf08181bc544fdd99cb057feb9a3b60
+Signed-off-by: Iurii Konovalenko <iurii.konovalenko@globallogic.com>
+---
+ xen/arch/arm/domain_build.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/xen/arch/arm/domain_build.c b/xen/arch/arm/domain_build.c
+index a059de6..2937ff7 100644
+--- a/xen/arch/arm/domain_build.c
++++ b/xen/arch/arm/domain_build.c
+@@ -244,7 +244,7 @@ fail:
+ static void allocate_memory_11(struct domain *d, struct kernel_info *kinfo)
+ {
+     const unsigned int min_low_order =
+-        get_order_from_bytes(min_t(paddr_t, dom0_mem, MB(128)));
++        get_11_allocation_size(min_t(paddr_t, dom0_mem, MB(128)));
+     const unsigned int min_order = get_order_from_bytes(MB(4));
+     struct page_info *pg;
+     unsigned int order = get_11_allocation_size(kinfo->unassigned_mem);
+-- 
+1.9.1
+
